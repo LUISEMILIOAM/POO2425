@@ -1,0 +1,101 @@
+# Clase base Medico: Representa a un médico genérico.
+class Medico:
+    def __init__(self, nombre, experiencia, habilidad, resistencia, energia):
+        self.nombre = nombre  # Nombre del médico.
+        self.experiencia = experiencia  # Años de experiencia.
+        self.habilidad = habilidad  # Nivel de habilidad médica.
+        self.resistencia = resistencia  # Capacidad de soportar largas jornadas.
+        self.energia = energia  # Energía disponible para realizar procedimientos.
+
+    def atributos(self):
+        print(self.nombre, ":", sep="")
+        print("·Experiencia:", self.experiencia, "años")
+        print("·Habilidad:", self.habilidad)
+        print("·Resistencia:", self.resistencia)
+        print("·Energía:", self.energia)
+
+    def esta_activo(self):
+        return self.energia > 0
+
+    def descansar(self):
+        self.energia += 10
+        print(f"{self.nombre} ha descansado y recuperado 10 puntos de energía.")
+
+    def realizar_procedimiento(self, paciente):
+        raise NotImplementedError("Este método debe ser implementado en las subclases.")
+
+
+# Clase Cirujano: Especializado en procedimientos quirúrgicos.
+class Cirujano(Medico):
+    def __init__(self, nombre, experiencia, habilidad, resistencia, energia, precision):
+        super().__init__(nombre, experiencia, habilidad, resistencia, energia)
+        self.precision = precision  # Nivel de precisión quirúrgica.
+
+    def atributos(self):
+        super().atributos()
+        print("·Precisión:", self.precision)
+
+    def realizar_procedimiento(self, paciente):
+        if self.energia <= 0:
+            print(f"{self.nombre} está agotado y no puede operar.")
+            return
+        exito = (self.habilidad * self.precision) / 10
+        self.energia -= 15
+        print(f"{self.nombre} realiza una cirugía en {paciente}. Éxito del procedimiento: {exito:.2f}")
+
+
+# Clase Cardiólogo: Especializado en procedimientos cardíacos y diagnósticos.
+class Cardiologo(Medico):
+    def __init__(self, nombre, experiencia, habilidad, resistencia, energia, conocimiento):
+        super().__init__(nombre, experiencia, habilidad, resistencia, energia)
+        self.conocimiento = conocimiento  # Nivel de conocimiento cardíaco.
+
+    def atributos(self):
+        super().atributos()
+        print("·Conocimiento Cardíaco:", self.conocimiento)
+
+    def realizar_procedimiento(self, paciente):
+        if self.energia <= 0:
+            print(f"{self.nombre} está agotado y no puede realizar un diagnóstico.")
+            return
+        exito = (self.habilidad * self.conocimiento) / 8
+        self.energia -= 10
+        print(f"{self.nombre} realiza un diagnóstico cardíaco en {paciente}. Éxito del procedimiento: {exito:.2f}")
+
+
+# Simulación de una jornada laboral.
+def jornada_laboral(medico_1, medico_2, paciente):
+    turno = 1
+    while medico_1.esta_activo() or medico_2.esta_activo():
+        print(f"\nTurno {turno}:")
+        if medico_1.esta_activo():
+            print(f">>> {medico_1.nombre} está atendiendo al paciente.")
+            medico_1.realizar_procedimiento(paciente)
+        else:
+            print(f"{medico_1.nombre} está agotado y no puede continuar.")
+
+        if medico_2.esta_activo():
+            print(f">>> {medico_2.nombre} está atendiendo al paciente.")
+            medico_2.realizar_procedimiento(paciente)
+        else:
+            print(f"{medico_2.nombre} está agotado y no puede continuar.")
+
+        turno += 1
+        if turno % 3 == 0:  # Cada 3 turnos, los médicos descansan.
+            medico_1.descansar()
+            medico_2.descansar()
+
+    print("\nJornada finalizada. Ambos médicos están agotados.")
+
+
+# Crear instancias de Cirujano y Cardiólogo.
+medico_1 = Cirujano("Dr. Smith", 10, 8, 7, 50, 9)
+medico_2 = Cardiologo("Dra. Brown", 12, 9, 8, 50, 10)
+
+# Mostrar atributos iniciales.
+print("Atributos iniciales de los médicos:")
+medico_1.atributos()
+medico_2.atributos()
+
+# Simular jornada laboral.
+jornada_laboral(medico_1, medico_2, "Paciente A")
